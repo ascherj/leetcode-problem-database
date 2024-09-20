@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: leetcode
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  etl:
+    image: python:3.9
+    container_name: etl_container
+    depends_on:
+      - postgres
+    volumes:
+      - ./etl.py:/etl.py
+      - ./leetcode-train.jsonl:/leetcode-train.jsonl
+      - ./requirements.txt:/requirements.txt
+    command: ["sh", "-c", "pip install -r /requirements.txt && pip install --upgrade pip && python /etl.py"]
+    restart: "no"
+
+volumes:
+  postgres_data:
+    external: false
